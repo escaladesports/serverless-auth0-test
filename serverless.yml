@@ -11,11 +11,18 @@ provider:
 functions:
   authorizerFunc:
     handler: src/handler.auth
-  hello:
+  public:
     handler: src/handler.hello
     events:
       - http:
-          path: handler
+          path: public
+          method: get
+          cors: true
+  private:
+    handler: src/handler.hello
+    events:
+      - http:
+          path: private
           method: get
           cors: true
           authorizer: authorizerFunc
@@ -25,7 +32,15 @@ package:
   include:
     - env.js.enc
     - envdotjs-key
+    - src/policyDocument.json
+
+custom:
+  serverless-offline:
+    babelOptions:
+      presets: ["es2015", "stage-3"]
+      plugins: ["transform-runtime"]
 
 plugins:
   - serverless-plugin-optimize
   - serverless-mocha-plugin
+  - serverless-offline

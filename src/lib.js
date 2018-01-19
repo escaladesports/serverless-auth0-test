@@ -1,27 +1,57 @@
-'use strict';
 
-var policyDocument = require('./policyDocument.json');
+import { load } from 'envdotjs'
+load()
+
+console.log(process.env)
+
+var policyDocument = {
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Stmt1459758003000",
+			"Effect": "Allow",
+			"Action": [
+				"execute-api:Invoke"
+			],
+			"Resource": [
+				"arn:aws:execute-api:*"
+			]
+		}
+	]
+}
+
+console.log('AUTH LIB FILE LOADED')
 var ACCESS_TOKEN_LENGTH = 16; // (apparent) length of an Autho0 access_token
 
 var AWS = require('aws-sdk');
+
+console.log('LOADED AWS-SDK')
 if (process.env.AWS_REGION) {
 	AWS.config.update({ region: process.env.AWS_REGION });
 }
 
 var AuthenticationClient = require('auth0').AuthenticationClient;
 
+console.log('LOADED AUTH0')
+
 if (typeof process.env.AUTH0_DOMAIN === "undefined" || !process.env.AUTH0_DOMAIN.match(/\.auth0\.com$/)) {
+	console.log('AUTH0_DOMAIN ERR')
 	throw new Error("Expected AUTHO_DOMAIN environment variable to be set in .env file. See https://manage.auth0.com/#/applications")
 }
 
 if (typeof process.env.AUTH0_CLIENTID === "undefined" || process.env.AUTH0_CLIENTID.length === 0) {
+	console.log('AUTH0_CLIENTID ERR')
 	throw new Error("Expected AUTH0_CLIENTID environment variable to be set in .env file. See https://manage.auth0.com/#/applications")
 }
+
+console.log('AUTHENTICATING CLIENT')
 
 var auth0 = new AuthenticationClient({
 	domain: process.env.AUTH0_DOMAIN,
 	clientId: process.env.AUTH0_CLIENTID
 });
+
+console.log('AUTHENTICATION CLIENT')
 
 // extract and return the Bearer Token from the Lambda event parameters
 var getToken = function (params) {
@@ -81,7 +111,11 @@ var getAuthentication = function (principalId) {
 	}
 }
 
+
+console.log('EXPORTING AUTH')
+
 module.exports.authenticate = function (params) {
+	console.log('AUTHENTICATING')
 	var token = getToken(params);
 
 	var getTokenDataPromise;
@@ -92,6 +126,8 @@ module.exports.authenticate = function (params) {
 	} else {
 		throw new TypeError("Bearer token too short - expected >= 16 charaters");
 	}
+
+	console.log('RUNNING PROMISE CHAIN')
 
 	return getTokenDataPromise
 		.then(returnAuth0UserInfo)
