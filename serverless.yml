@@ -1,0 +1,31 @@
+service: serverless-auth0-test
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-1
+  stage: ${opt:stage, 'development'}
+  environment:
+    NODE_ENV: ${opt:stage, 'development'}
+
+functions:
+  authorizerFunc:
+    handler: src/handler.auth
+  hello:
+    handler: src/handler.hello
+    events:
+      - http:
+          path: handler
+          method: get
+          cors: true
+          authorizer: authorizerFunc
+
+package:
+  individually: true
+  include:
+    - env.js.enc
+    - envdotjs-key
+
+plugins:
+  - serverless-plugin-optimize
+  - serverless-mocha-plugin

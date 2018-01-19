@@ -1,0 +1,47 @@
+{
+  "name": "serverless-aws-boilerplate",
+  "version": "1.0.2",
+  "main": "src/handler.js",
+  "author": "Kennedy Rose <krose@escaladesports.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "serverless package",
+    "deploy": "SLS_DEBUG=* serverless deploy --verbose --stage staging",
+    "deploy-production": "SLS_DEBUG=* npm run test-production && yn && serverless deploy --verbose --stage production",
+    "encrypt": "envdotjs",
+    "invoke": "serverless invoke local --function hello",
+    "logs": "serverless logs --tail --stage staging --function hello",
+    "prepush": "babel-node githooks/test",
+    "reset": "rm -rf .git && git init && git add . && git commit -m 'Initial commit'",
+    "test": "SLS_DEBUG=* serverless invoke test --compilers js:babel-core/register",
+    "test-production": "serverless invoke test --stage master --compilers js:babel-core/register",
+    "test-live": "SLS_DEBUG=* serverless invoke test --stage staging --compilers js:babel-core/register --live",
+    "unencrypt": "envdotjs --unencrypt"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-minify-webpack-plugin": "^0.2.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "exeq": "^3.0.0",
+    "git-rev-promises": "^1.0.8",
+    "husky": "^0.14.3",
+    "serverless": "^1.25.0",
+    "serverless-mocha-plugin": "^1.7.0",
+    "serverless-plugin-optimize": "^3.0.4-rc.1",
+    "webpack": "^3.10.0",
+    "yn-cli": "^1.0.0"
+  },
+  "dependencies": {
+    "auth0": "2.5.0",
+    "aws-sdk": "^2.184.0",
+    "envdotjs": "^1.1.3",
+    "middy": "^0.5.2"
+  }
+}

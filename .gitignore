@@ -1,0 +1,24 @@
+# System generated files
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Development/Environment
+env.js
+envdotjs-key
+dist
+.next
+json
+public
+.cache
+
+# Temporary
+temp
+temp-*
+.serverless
