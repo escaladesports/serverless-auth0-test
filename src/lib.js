@@ -2,8 +2,6 @@
 import { load } from 'envdotjs'
 load()
 
-console.log(process.env)
-
 var policyDocument = {
 	"Version": "2012-10-17",
 	"Statement": [
@@ -46,10 +44,14 @@ if (typeof process.env.AUTH0_CLIENTID === "undefined" || process.env.AUTH0_CLIEN
 
 console.log('AUTHENTICATING CLIENT')
 
-var auth0 = new AuthenticationClient({
+const authOptions = {
 	domain: process.env.AUTH0_DOMAIN,
 	clientId: process.env.AUTH0_CLIENTID
-});
+}
+
+console.log('authOptions', authOptions)
+
+var auth0 = new AuthenticationClient(authOptions);
 
 console.log('AUTHENTICATION CLIENT')
 
@@ -74,6 +76,7 @@ var getToken = function (params) {
 }
 
 var returnAuth0UserInfo = function (auth0return) {
+	console.log('AUTH0RETURN:', auth0return)
 	if (!auth0return) throw new Error('Auth0 empty return');
 	if (auth0return === 'Unauthorized') {
 		throw new Error('Auth0 reports Unauthorized')
@@ -114,20 +117,37 @@ var getAuthentication = function (principalId) {
 
 console.log('EXPORTING AUTH')
 
+const jwt = require('jsonwebtoken')
+const fetch = require('isomorphic-fetch')
+
 module.exports.authenticate = function (params) {
 	console.log('AUTHENTICATING')
 	var token = getToken(params);
 
 	var getTokenDataPromise;
 	if (token.length === ACCESS_TOKEN_LENGTH) { // Auth0 v1 access_token (deprecated)
+		console.log('PARSING USER TOKEN')
 		getTokenDataPromise = auth0.users.getInfo(token);
 	} else if (token.length > ACCESS_TOKEN_LENGTH) { // (probably) Auth0 id_token
+		console.log('PARSING ID TOKEN')
 		getTokenDataPromise = auth0.tokens.getInfo(token);
 	} else {
 		throw new TypeError("Bearer token too short - expected >= 16 charaters");
 	}
 
+	console.log('TOKEN:', token)
+
 	console.log('RUNNING PROMISE CHAIN')
+
+
+	const otherPromise = async () => {
+		console.log('SECRET:', process.env.AUTH0_SECRET)
+		const decoded = jwt.verify(token, process.env.AUTH0_SECRET)
+		console.log('DECODED:', decoded)
+	}
+	otherPromise()
+
+
 
 	return getTokenDataPromise
 		.then(returnAuth0UserInfo)

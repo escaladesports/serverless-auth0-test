@@ -26,6 +26,13 @@ functions:
           method: get
           cors: true
           authorizer: authorizerFunc
+  test:
+    handler: src/handler.test
+    events:
+      - http:
+          path: test
+          method: get
+          cors: true
 
 package:
   individually: true
